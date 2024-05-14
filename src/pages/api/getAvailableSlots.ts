@@ -9,7 +9,7 @@ export default async function getAvailableSlots(req: NextApiRequest, res: NextAp
     return;
   }
 
-  const { date } = req.query;
+  const { date, username } = req.query;
   const dateFrom=date;
   const dateTo = date;
     if (!date) {
@@ -18,7 +18,7 @@ export default async function getAvailableSlots(req: NextApiRequest, res: NextAp
   }
 
   try {
-    const url = `https://api.cal.com/v1/availability?apiKey=${API_KEY}&dateFrom=${dateFrom}&dateTo=${dateTo}`;
+    const url = `https://api.cal.com/v1/availability?apiKey=${API_KEY}&dateFrom=${dateFrom}&dateTo=${dateTo}&username=${username}`;
     
     const response = await axios.get(url);
     
