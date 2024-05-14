@@ -12,7 +12,7 @@ interface ApiRequest extends NextApiRequest {
   };
 }
 
-const API_KEY = process.env.API_KEY;  
+const API_KEY = process.env.API_KEY;
 
 export default async function handler(req: ApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -25,29 +25,41 @@ export default async function handler(req: ApiRequest, res: NextApiResponse) {
   try {
     switch (type) {
       case 'exact':
-        await scheduleExactTiming(start_time, res);
+        if (start_time) {
+          await scheduleExactTiming(start_time, res);
+        } else {
+          res.status(400).json({ error: 'start_time is required for exact scheduling' });
+        }
         break;
       case 'date':
-        await getAvailableSlots(date, num_slots, res);
+        if (date) {
+          await getAvailableSlots(date, num_slots, res);
+        } else {
+          res.status(400).json({ error: 'date is required for date scheduling' });
+        }
         break;
       case 'range':
-        await getAvailableSlotsRange(start_date, end_date, num_slots, res);
+        if (start_date && end_date) {
+          await getAvailableSlotsRange(start_date, end_date, num_slots, res);
+        } else {
+          res.status(400).json({ error: 'start_date and end_date are required for range scheduling' });
+        }
         break;
       default:
         res.status(400).json({ error: 'Invalid request type specified' });
     }
   } catch (error: any) {
-    console.error(error);  
+    console.error(error);
     res.status(500).json({ error: 'Server error', details: error.message });
   }
 }
 
 async function scheduleExactTiming(time: string, res: NextApiResponse) {
   try {
-    const response = await axios.post(`https://api.cal.com/v1/bookings?apiKey=${API_KEY}`, { start: time, end: time }); // Assuming start and end times are the same for this example
+    const response = await axios.post(`https://api.cal.com/v1/bookings?apiKey=${API_KEY}`, { time });
     res.status(200).json(response.data);
   } catch (error: any) {
-    console.error(error.response.data);    
+    console.error(error.response.data);
     res.status(error.response.status).json(error.response.data);
   }
 }
@@ -58,8 +70,8 @@ async function getAvailableSlots(date: string, num_slots: number, res: NextApiRe
     const slots = response.data.slots.slice(0, num_slots);
     res.status(200).json({ available_slots: slots });
   } catch (error: any) {
-        console.error(error.response.data);
-        res.status(error.response.status).json(error.response.data);
+    console.error(error.response.data);
+    res.status(error.response.status).json(error.response.data);
   }
 }
 
