@@ -9,15 +9,15 @@ export default async function getAvailableSlotsRange(req: NextApiRequest, res: N
     return;
   }
 
-  const { start_date, end_date } = req.query;
+  const { dateFrom, dateTo } = req.query;
 
-  if (!start_date || !end_date) {
+  if (!dateFrom || !dateTo) {
     res.status(400).json({ error: 'Start date and end date are required' });
     return;
   }
 
   try {
-    const response = await axios.get(`https://api.cal.com/v1/availability?apiKey=${API_KEY}&start_date=${start_date}&end_date=${end_date}`);
+    const response = await axios.get(`https://api.cal.com/v1/availability?apiKey=${API_KEY}&dateFrom=${dateFrom}&dateTo=${dateTo}`);
     res.status(200).json(response.data);
   } catch (error: any) {
     console.error(error.response.data);
