@@ -5,6 +5,7 @@
 - <b>Endpoint</b>: /api/book
 - <b>Method</b>: POST
 - <b>Body</b>:
+  ```
   {
   "responses": {
   "name": "xyz",
@@ -20,6 +21,7 @@
   "language": "en",
   "metadata": {}
   }
+  ```
 
 ### Find Free Schedule starting from a date
 
