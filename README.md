@@ -25,12 +25,12 @@
 
 ### Find Free Schedule starting from a date
 
-- <b>Endpoint</b>: /api/book/findFreeSchedule
+- <b>Endpoint</b>: /api/findFreeSchedule
 - <b>Method</b>: GET
 - <b>Parameters</b>: username and date (YYYY-MM-DD)
 
 ### Find Free Schedule on a specific date
 
-- <b>Endpoint</b>: /api/book/findFreeScheduleOnDate
+- <b>Endpoint</b>: /api/findFreeScheduleOnDate
 - <b>Method</b>: GET
 - <b>Parameters</b>: username and date (YYYY-MM-DD)
