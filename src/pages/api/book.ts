@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import { fetchSchedules, fetchBusySlots, calculateFreeSlots } from '../../utilities/scheduleUtils'; 
+import { findEventTypeId } from '../../utilities/bookingUtils';
 
 const API_KEY = process.env.API_KEY;
 const BASE_URL = 'https://api.cal.com/v1';
@@ -61,6 +62,8 @@ async function findFreeSchedule(username: string, date: string) {
     }
 }
 
+
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {
         res.status(405).json({ message: 'Only POST requests allowed' });
@@ -72,8 +75,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
         user = await getUserDetails();
-        const { eventTypeId, start, end, responses, title, description, metadata } = req.body;
-        
+        const { start, end, responses,eventTypeSlug, title, description, metadata } = req.body;
+        const eventTypeId = await findEventTypeId(eventTypeSlug);        
         bookingData = {
             eventTypeId,
             start,
