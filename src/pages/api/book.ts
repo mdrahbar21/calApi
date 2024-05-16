@@ -75,15 +75,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
         user = await getUserDetails();
-        const { start, end, responses,eventTypeSlug, title, description, metadata } = req.body;
+        const { start, end, responses, eventTypeSlug, title, description, metadata } = req.body;
         const eventTypeId = await findEventTypeId(eventTypeSlug);        
         bookingData = {
             eventTypeId,
             start,
             end,
             responses: {
-                name: user.name,
-                email: user.email,
+                name: responses.name,
+                email: responses.email,
                 location: {
                     value: responses.location.value,
                     optionValue: responses.location.optionValue,
