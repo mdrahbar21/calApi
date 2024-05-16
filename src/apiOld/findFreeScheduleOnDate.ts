@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { fetchSchedules, fetchBusySlots, calculateFreeSlots } from '../../utilities/scheduleUtils';
+import { fetchSchedules, fetchBusySlots, calculateFreeSlots } from '../utilities/scheduleUtils';
 
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

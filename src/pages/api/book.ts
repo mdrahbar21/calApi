@@ -1,7 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import { fetchSchedules, fetchBusySlots, calculateFreeSlots } from '../../utilities/scheduleUtils'; 
-import { findEventTypeId } from '../../utilities/bookingUtils';
+import { findEventTypeId } from '../../utilities/eventUtils';
+import { getUserDetails } from '../../utilities/userUtils';
+import { getAvailableSlots } from '../../utilities/availabilityUtils';
 
 const API_KEY = process.env.API_KEY;
 const BASE_URL = 'https://api.cal.com/v1';
@@ -24,13 +26,6 @@ interface BookingData {
     title?: string;
     description?: string;
     metadata: Record<string, any>;
-    [key: string]: any; 
-}
-
-async function getUserDetails() {
-    const url = `${BASE_URL}/me?apiKey=${API_KEY}`;
-    const response = await axios.get(url);
-    return response.data.user;
 }
 
 async function createBooking(data: BookingData) {
@@ -50,28 +45,14 @@ async function createBooking(data: BookingData) {
     }
 }
 
-async function findFreeSchedule(username: string, date: string) {
-    try {
-        const schedules = await fetchSchedules(username);
-        const busySlots = await fetchBusySlots(username, date);
-        const freeSlots = calculateFreeSlots(schedules, busySlots, date);
-        return { freeSlots }; // Returning directly as data
-    } catch (error: any) {
-        console.error('Error fetching free schedule:', error);
-        throw new Error('Failed to fetch free schedule');
-    }
-}
-
-
-
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {
         res.status(405).json({ message: 'Only POST requests allowed' });
         return;
     }
 
-    let user: any = null;
-    let bookingData: BookingData | null = null;
+    let bookingData: BookingData | null = null;  // Declare bookingData here
+    let user = null;
 
     try {
         user = await getUserDetails();
@@ -100,8 +81,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const booking = await createBooking(bookingData);
         res.status(201).json(booking);
     } catch (error: any) {
-        if (error.message === 'no_available_users_found_error' && user && bookingData) {
-            const freeSchedule = await findFreeSchedule(user.username, bookingData.start.split('T')[0]);
+        if (error.message === 'no_available_users_found_error' && bookingData) {
+            
+            const freeSchedule = await getAvailableSlots(user.username, bookingData.start.split('T')[0]);
             res.status(503).json({ message: 'Slot not available, please choose one of the following slots:', freeSchedule });
         } else {
             const status = error.message.includes('Missing field') ? 400 : 500;
