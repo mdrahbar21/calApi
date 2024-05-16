@@ -16,12 +16,17 @@
   }
   },
   "start": "2024-05-22T14:00:00+05:30",
-  "eventTypeId": 791261,
+  "eventTypeSlug": "30min", or 15min or 1-hour-meeting or secret
   "timeZone": "Asia/Kolkata",
   "language": "en",
   "metadata": {}
   }
   ```
+
+### Find all EventTypes and Ids
+
+- <b>Endpoint</b>: /api/findEventTypeId
+- <b>Method</b>: GET
 
 ### Find Free Schedule starting from a date
 
