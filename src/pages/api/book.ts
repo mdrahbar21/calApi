@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
+import { fetchSchedules, fetchBusySlots, calculateFreeSlots } from '../../utilities/scheduleUtils'; 
 
 const API_KEY = process.env.API_KEY;
 const BASE_URL = 'https://api.cal.com/v1';
@@ -50,10 +51,12 @@ async function createBooking(data: BookingData) {
 
 async function findFreeSchedule(username: string, date: string) {
     try {
-        const response = await axios.get(`http://localhost:3000/api/findFreeScheduleOn1Day?username=${username}&date=${date}`);
-        return response.data;
+        const schedules = await fetchSchedules(username);
+        const busySlots = await fetchBusySlots(username, date);
+        const freeSlots = calculateFreeSlots(schedules, busySlots, date);
+        return { freeSlots }; // Returning directly as data
     } catch (error: any) {
-        console.error('Error fetching free schedule:', error.response ? error.response.data : error.message);
+        console.error('Error fetching free schedule:', error);
         throw new Error('Failed to fetch free schedule');
     }
 }
