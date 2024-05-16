@@ -5,18 +5,26 @@ import { parseISO, formatISO } from 'date-fns';
 const API_KEY = process.env.API_KEY;
 const BASE_URL = 'https://api.cal.com/v1';
 
-// Helper function to fetch schedules 
+// Helper function to fetch schedules
 async function fetchSchedules(username: string) {
-    const schedulesUrl = `${BASE_URL}/schedules?apiKey=${API_KEY}&username=${username}`;
-    const response = await axios.get(schedulesUrl);
-    return response.data.schedules;
+    try {
+        const schedulesUrl = `${BASE_URL}/schedules?apiKey=${API_KEY}&username=${username}`;
+        const response = await axios.get(schedulesUrl);
+        return response.data.schedules;
+    } catch (error: any) {
+        throw new Error('Failed to fetch schedules: ' + (error.response?.data?.message || error.message));
+    }
 }
 
 // Helper function to fetch busy slots
 async function fetchBusySlots(username: string, date: string) {
-    const availabilityUrl = `${BASE_URL}/availability?apiKey=${API_KEY}&username=${username}&dateFrom=${date}&dateTo=${date}`;
-    const response = await axios.get(availabilityUrl);
-    return response.data.busy;
+    try {
+        const availabilityUrl = `${BASE_URL}/availability?apiKey=${API_KEY}&username=${username}&dateFrom=${date}&dateTo=${date}`;
+        const response = await axios.get(availabilityUrl);
+        return response.data.busy;
+    } catch (error: any) {
+        throw new Error('Failed to fetch busy slots: ' + (error.response?.data?.message || error.message));
+    }
 }
 
 // Helper function to calculate free time slots
@@ -65,8 +73,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const busySlots = await fetchBusySlots(username, date);
         const freeSlots = calculateFreeSlots(schedules, busySlots);
         res.status(200).json({ freeSlots });
-    } catch (error: any) {
-        console.error(error.response ? error.response.data : error.message);
-        res.status(error.response?.status || 500).json({ message: 'Error retrieving data', details: error.message });
+    } catch (error:any) {
+        console.error(error);
+        res.status(500).json({ message: 'Error retrieving data', details: error.message });
     }
 }
