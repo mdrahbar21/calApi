@@ -67,3 +67,46 @@ export function calculateFreeSlots(schedules: any[], busySlots: any[], queryDate
         (parseISO(slot.start) <= targetDateStart && parseISO(slot.end) >= targetDateEnd)
     );
 }
+
+
+
+export function calculateFreeSlotsAll(schedules: any[], busySlots: any[]) {
+    let freeSlots: { start: string, end: string }[] = [];
+    let uniqueSlotSet = new Set<string>();  // Set to track unique slots
+
+    schedules.forEach(schedule => {
+        schedule.availability.forEach((wh: any) => {
+            let dayStart = parseISO(`${wh.date}T${wh.startTime}`);
+            let dayEnd = parseISO(`${wh.date}T${wh.endTime}`);
+
+            let currentStart = dayStart;
+            busySlots.forEach(slot => {
+                let busyStart = parseISO(slot.start);
+                let busyEnd = parseISO(slot.end);
+
+                if (currentStart < busyStart) {
+                    let start = formatISO(currentStart);
+                    let end = formatISO(busyStart);
+                    let slotString = JSON.stringify({ start, end });
+                    if (!uniqueSlotSet.has(slotString)) {
+                        freeSlots.push({ start, end });
+                        uniqueSlotSet.add(slotString);  // Add to set to track uniqueness
+                    }
+                }
+                currentStart = busyEnd;
+            });
+
+            if (currentStart < dayEnd) {
+                let start = formatISO(currentStart);
+                let end = formatISO(dayEnd);
+                let slotString = JSON.stringify({ start, end });
+                if (!uniqueSlotSet.has(slotString)) {
+                    freeSlots.push({ start, end });
+                    uniqueSlotSet.add(slotString);  // Add to set to track uniqueness
+                }
+            }
+        });
+    });
+
+    return freeSlots;
+}
