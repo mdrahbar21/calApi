@@ -28,14 +28,8 @@
 - <b>Endpoint</b>: /api/findEventTypeId
 - <b>Method</b>: GET
 
-### Find Free Schedule starting from a date
+### Find Free Schedule between 2 dates
 
-- <b>Endpoint</b>: /api/findFreeSchedule
+- <b>Endpoint</b>: /api/getAvailableSlotRange
 - <b>Method</b>: GET
-- <b>Parameters</b>: username and date (YYYY-MM-DD)
-
-### Find Free Schedule on a specific date
-
-- <b>Endpoint</b>: /api/findFreeScheduleOnDate
-- <b>Method</b>: GET
-- <b>Parameters</b>: username and date (YYYY-MM-DD)
+- <b>Parameters</b>: username, startDate (YYYY-MM-DD) and endDate (YYYY-MM-DD)
