@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
-import { fetchSchedules, fetchBusySlots, calculateFreeSlots } from '../../utilities/scheduleUtils'; 
 import { findEventTypeId } from '../../utilities/eventUtils';
 import { getUserDetails } from '../../utilities/userUtils';
 import { getAvailableSlots } from '../../utilities/availabilityUtils';

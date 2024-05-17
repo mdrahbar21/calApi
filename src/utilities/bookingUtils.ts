@@ -25,8 +25,22 @@ export interface BookingData {
     metadata: Record<string, any>;
 }
 
+function checkRequiredFields(reqBody: any) {
+    if (!reqBody.eventTypeSlug) throw new Error("Missing field: eventTypeSlug (the slug of the event's URL, if URL of your event is 'cal.com/ignis-lumen/15min', then eventTypeSlug ='15min')");
+    if (!reqBody.start) throw new Error('Missing field: start');
+    if (!reqBody.timeZone) throw new Error('Missing field: timeZone');
+    if (!reqBody.language) throw new Error('Missing field: language');
+    if (!reqBody.metadata) throw new Error('Missing field: metadata');
+    if (!reqBody.responses) throw new Error('Missing field: responses');
+    if (!reqBody.responses.name) throw new Error('Missing field: responses.name');
+    if (!reqBody.responses.email) throw new Error('Missing field: responses.email');
+    if (!reqBody.responses.location) throw new Error('Missing field: responses.location');
+    if (!reqBody.responses.location.value) throw new Error('Missing field: responses.location.value');
+}
+
 export async function createBooking(reqBody: any) {
     const user = await getUserDetails();
+    checkRequiredFields(reqBody);
     const eventTypeId = await findEventTypeId(reqBody.eventTypeSlug);
     const bookingData: BookingData = {
         eventTypeId,
