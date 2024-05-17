@@ -4,28 +4,37 @@ import { parseISO, formatISO, isWithinInterval, startOfDay, endOfDay } from 'dat
 const API_KEY = process.env.API_KEY;
 const BASE_URL = 'https://api.cal.com/v1';
 
-// Helper function to fetch schedules
+// Helper function to fetch schedules using fetch
 export async function fetchSchedules(username: string) {
+    const schedulesUrl = `${BASE_URL}/schedules?apiKey=${API_KEY}&username=${username}`;
     try {
-        const schedulesUrl = `${BASE_URL}/schedules?apiKey=${API_KEY}&username=${username}`;
-        const response = await axios.get(schedulesUrl);
-        return response.data.schedules;
+        const response = await fetch(schedulesUrl);
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error('Failed to fetch schedules: ' + (errorData.message || response.statusText));
+        }
+        const data = await response.json();
+        return data.schedules;
     } catch (error: any) {
-        throw new Error('Failed to fetch schedules: ' + (error.response?.data?.message || error.message));
+        throw new Error('Failed to fetch schedules: ' + error.message);
     }
 }
 
-// Helper function to fetch busy slots
+// Helper function to fetch busy slots using fetch
 export async function fetchBusySlots(username: string, date: string) {
+    const availabilityUrl = `${BASE_URL}/availability?apiKey=${API_KEY}&username=${username}&dateFrom=${date}&dateTo=${date}`;
     try {
-        const availabilityUrl = `${BASE_URL}/availability?apiKey=${API_KEY}&username=${username}&dateFrom=${date}&dateTo=${date}`;
-        const response = await axios.get(availabilityUrl);
-        return response.data.busy;
+        const response = await fetch(availabilityUrl);
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error('Failed to fetch busy slots: ' + (errorData.message || response.statusText));
+        }
+        const data = await response.json();
+        return data.busy;
     } catch (error: any) {
-        throw new Error('Failed to fetch busy slots: ' + (error.response?.data?.message || error.message));
+        throw new Error('Failed to fetch busy slots: ' + error.message);
     }
 }
-
 
 // Helper function to calculate free time slots
 export function calculateFreeSlots(schedules: any[], busySlots: any[], queryDate: string) {
@@ -66,8 +75,6 @@ export function calculateFreeSlots(schedules: any[], busySlots: any[], queryDate
         (parseISO(slot.start) <= targetDateStart && parseISO(slot.end) >= targetDateEnd)
     );
 }
-
-
 
 export function calculateFreeSlotsAll(schedules: any[], busySlots: any[]) {
     let freeSlots: { start: string, end: string }[] = [];
