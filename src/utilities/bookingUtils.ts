@@ -61,7 +61,7 @@ export async function createBooking(reqBody: any) {
         // throw new Error(data.message || 'Failed to create booking');
         const free_slots = await getAvailableSlots(user.username, reqBody.start.split('T')[0]);
         if (free_slots.length==0){
-            return { success: false, status: 503, message: 'No slots available, either it is Sunday or all slots are booked' };
+            return { success: false, status: 503, message: 'No slots available, either it is not a working day or all slots are booked' };
         }
         else {
             const formattedSlots = free_slots.map(slot => `${slot.start} to ${slot.end}`).join(', ');
