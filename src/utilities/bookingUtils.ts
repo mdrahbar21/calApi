@@ -59,8 +59,14 @@ export async function createBooking(reqBody: any) {
     const data = await response.json();
     if (!response.ok) {
         // throw new Error(data.message || 'Failed to create booking');
-        const suggested_slots = await getAvailableSlots(user.username, reqBody.start.split('T')[0]);
-        return ('Slot not available, please choose one of the following slots:\n free slots:'+ JSON.stringify(suggested_slots) );
+        const free_slots = await getAvailableSlots(user.username, reqBody.start.split('T')[0]);
+        if (free_slots.length==0){
+            return { success: false, status: 503, message: 'No slots available, either it is Sunday or all slots are booked' };
+        }
+        else {
+            const formattedSlots = free_slots.map(slot => `${slot.start} to ${slot.end}`).join(', ');
+            return { success: false, status: 503, message: `Slot not available, please choose one of the following slots: ${formattedSlots}` };
+        }
 
     }
     return data;

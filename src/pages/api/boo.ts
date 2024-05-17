@@ -14,7 +14,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.status(201).json(booking);
     } catch (error: any) {
         if (error.message === 'no_available_users_found_error') {
-            console.log(req.body);
         } else {
             const status = error.message.includes('Missing field') ? 400 : 500;
             res.status(status).json({ message: 'Error creating booking', details: error.message });

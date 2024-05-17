@@ -83,8 +83,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } catch (error: any) {
         if (error.message === 'no_available_users_found_error' && bookingData) {
             
-            const freeSchedule = await getAvailableSlots(user.username, bookingData.start.split('T')[0]);
-            res.status(503).json({ message: 'Slot not available, please choose one of the following slots:', freeSchedule });
+            const free_slots = await getAvailableSlots(user.username, bookingData.start.split('T')[0]);
+            if (free_slots.length==0){
+                res.status(503).json ({message:'No slots Available, either it is Sunday or all slots are booked'})
+            }
+            else{
+                res.status(503).json({ message: 'Slot not available, please choose one of the following slots:', free_slots });
+            }
         } else {
             const status = error.message.includes('Missing field') ? 400 : 500;
             res.status(status).json({ message: 'Error creating booking', details: error.message });
