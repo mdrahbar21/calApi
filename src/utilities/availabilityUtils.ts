@@ -77,7 +77,7 @@ export async function getSlots( startTime:string,eventTypeId?:number, endTime?:s
         return {success: false, status:400, message: 'startTime is required'};
     }
     // update startTime as input taken by CAL.com api automatically adds +05:30 to the startTime
-    startTime = moment(startTime, 'YYYY-MM-DDTHH:mm:ss').subtract(5, 'hours').subtract(30, 'minutes').format('YYYY-MM-DDTHH:mm:ss') + 'Z';
+    // startTime = moment(startTime, 'YYYY-MM-DDTHH:mm:ss').subtract(5, 'hours').subtract(30, 'minutes').format('YYYY-MM-DDTHH:mm:ss') + 'Z';
 
     // console.log('start '+startTime);
     const timeZone="Asia/Kolkata";
