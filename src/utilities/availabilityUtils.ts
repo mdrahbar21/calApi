@@ -78,7 +78,6 @@ export async function getSlots( startTime:string,eventTypeId?:number, endTime?:s
     }
     // update startTime as input taken by CAL.com api automatically adds +05:30 to the startTime
     // startTime = moment(startTime, 'YYYY-MM-DDTHH:mm:ss').subtract(5, 'hours').subtract(30, 'minutes').format('YYYY-MM-DDTHH:mm:ss') + 'Z';
-
     // console.log('start '+startTime);
     const timeZone="Asia/Kolkata";
 
@@ -100,11 +99,56 @@ export async function getSlots( startTime:string,eventTypeId?:number, endTime?:s
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        return data;
+        const allSlots = Object.values(data).flatMap((dateSlots:any) => {
+            // each 'dateSlots' is an object where keys are dates and values are arrays of slots
+            return Object.values(dateSlots).flat();
+        });
+        const merged=mergeSlots(allSlots);
+        return merged;
         // res.status(200).json({ freeSlots: data });
     } catch (error: any) {
-        console.error('Error fetching availability:', error.message);
+        console.error('No slots available, either it is not a working day or all slots are booked, Error fetching availability: ', error.message);
         return { success: false, status:500, message:'Error retrieving data'+error.message};
         // res.status(500).json({ message: 'Error retrieving data', details: error.message });
     }
+}
+
+export function mergeSlots(slots:any) {
+    const options = {
+        timeZone: 'Asia/Kolkata',
+        weekday: 'long', 
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true 
+    };
+
+    const parsedSlots = slots.map((slot:any) => new Date(slot.time)).sort((a:any, b:any) => a - b);
+
+    let mergedSlots = [];
+    let start = parsedSlots[0];
+    let end = new Date(start.getTime() + 30 * 60000);
+
+    for (let i = 1; i < parsedSlots.length; i++) {
+        let current = parsedSlots[i];
+        if (current.getTime() === end.getTime()) {
+            end = new Date(end.getTime() + 30 * 60000);
+        } else {
+            mergedSlots.push({
+                time: `${start.toLocaleString('en-IN', options)} to ${end.toLocaleString('en-IN', options)}`
+            });
+            start = current;
+            end = new Date(start.getTime() + 30 * 60000);
+        }
+    }
+
+    // Add the last range to the result
+    mergedSlots.push({
+        time: `${start.toLocaleString('en-IN', options)} to ${end.toLocaleString('en-IN', options)}`
+    });
+
+    return mergedSlots;
 }

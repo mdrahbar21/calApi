@@ -1,6 +1,6 @@
 import { findEventTypeId } from './eventUtils';
 import { getUserDetails } from './userUtils';
-import { getAvailableSlots, getSlots } from './availabilityUtils';
+import { getAvailableSlots, getSlots,mergeSlots  } from './availabilityUtils';
 
 const API_KEY = process.env.API_KEY;
 const BASE_URL = 'https://api.cal.com/v1';
@@ -74,35 +74,19 @@ export async function createBooking(reqBody: any) {
     if (!response.ok) {
         const free_slots = await getSlots(reqBody.start, eventTypeId, reqBody.end, reqBody.timeZone);
     
-        const allSlots = Object.values(free_slots).flatMap((dateSlots:any) => {
-            // each 'dateSlots' is an object where keys are dates and values are arrays of slots
-            return Object.values(dateSlots).flat();
-        });
-
-        // const allSlots:any = Object.values(free_slots).reduce((acc:any, dateSlots:any) => {
-        //     Object.values(dateSlots).forEach((slots:any) => {
-        //         slots.forEach((slot:any) => acc.push(slot.time)); // Directly pushing the 'time' property to accumulator
-        //     });
-        //     return acc;
-        // }, []);
-        
-        // const formattedSlots = allSlots.join(', ');
-        
-        // console.log("All slots after proper extraction:", allSlots);
-    
-        if (!allSlots.length) {
+        if (!Array.isArray(free_slots) || !free_slots.length) {
             return { success: false, status: 503, message: 'No slots available, either it is not a working day or all slots are booked' };
         }
     
-        const formattedSlots = allSlots.map((slot:any) => slot.time).join(', ');
+        const formattedSlots = free_slots.map((slot:any) => slot.time).join(', ');
     
         if (!formattedSlots.length) {
             return { success: false, status: 503, message: 'No slots available or unable to parse slots data' };
-        }
-    
+        }    
         return { success: false, status: 503, message: `Slot not available, please choose one of the following slots: ${formattedSlots}` };
     }
     
     
     return data;
 }
+
