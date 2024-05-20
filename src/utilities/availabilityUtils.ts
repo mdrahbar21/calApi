@@ -114,7 +114,7 @@ export async function getSlots( startTime:string,eventTypeId?:number, endTime?:s
 }
 
 export function mergeSlots(slots:any) {
-    const options = {
+    const options:any = {
         timeZone: 'Asia/Kolkata',
         weekday: 'long', 
         year: 'numeric',
