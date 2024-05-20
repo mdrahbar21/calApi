@@ -1,4 +1,7 @@
 import { parseISO, setHours, setMinutes, addMinutes, eachMinuteOfInterval, formatISO, startOfDay, addDays, isWithinInterval } from 'date-fns';
+import moment from 'moment-timezone';
+
+import { findEventTypeId } from './eventUtils';
 
 const API_KEY = process.env.API_KEY;
 const BASE_URL = 'https://api.cal.com/v1';
@@ -66,4 +69,41 @@ export async function getAvailableSlots(username: string, startDate: string, end
     });
 
     return freeSlots;
+}
+
+
+export async function getSlots( startTime:string,eventTypeId?:number, endTime?:string, timeZone?:string,eventTypeSlug?:string) {
+    if (!startTime) {
+        return {success: false, status:400, message: 'startTime is required'};
+    }
+    // update startTime as input taken by CAL.com api automatically adds +05:30 to the startTime
+    startTime = moment(startTime, 'YYYY-MM-DDTHH:mm:ss').subtract(5, 'hours').subtract(30, 'minutes').format('YYYY-MM-DDTHH:mm:ss') + 'Z';
+
+    // console.log('start '+startTime);
+
+    if (!eventTypeId && eventTypeSlug) {
+        eventTypeId = await findEventTypeId(eventTypeSlug as string);
+        if (!eventTypeId) {
+            return {success: false, status:404, message: 'Event type not found'}; 
+        }
+    } else if (!eventTypeId) {
+        return {success: false, status:400, message:  'eventTypeId or eventTypeSlug is required' };
+    }
+
+    const resolvedEndTime = endTime ? endTime as string : new Date(new Date(startTime as string).getTime() + 24 * 60 * 60 * 1000).toISOString();
+
+    const slotsUrl = `${BASE_URL}/slots?apiKey=${API_KEY}&startTime=${startTime}&endTime=${resolvedEndTime}&eventTypeId=${eventTypeId}&timeZone=${timeZone}`;
+    try {
+        const response = await fetch(slotsUrl);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        return data;
+        // res.status(200).json({ freeSlots: data });
+    } catch (error: any) {
+        console.error('Error fetching availability:', error.message);
+        return { success: false, status:500, message:'Error retrieving data'+error.message};
+        // res.status(500).json({ message: 'Error retrieving data', details: error.message });
+    }
 }

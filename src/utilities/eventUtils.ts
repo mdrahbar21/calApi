@@ -1,5 +1,5 @@
 const API_KEY = process.env.API_KEY;
-const BASE_URL = 'https://api.cal.com/v1/event-types';
+const BASE_URL = 'https://api.cal.com/v1';
 
 interface EventType {
   id: number;
@@ -13,7 +13,7 @@ interface EventType {
 async function getEventTypes(): Promise<EventType[]> {
   try {
     // const response = await axios.get(`${BASE_URL}?apiKey=${API_KEY}`);
-    const url=`${BASE_URL}?apiKey=${API_KEY}`;
+    const url=`${BASE_URL}/event-types?apiKey=${API_KEY}`;
     const response = await fetch(url)
     const data = await response.json();
     // Extract the event_types from response data and map to desired format

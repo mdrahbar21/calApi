@@ -1,6 +1,6 @@
 import { findEventTypeId } from './eventUtils';
 import { getUserDetails } from './userUtils';
-import { getAvailableSlots } from './availabilityUtils';
+import { getAvailableSlots, getSlots } from './availabilityUtils';
 
 const API_KEY = process.env.API_KEY;
 const BASE_URL = 'https://api.cal.com/v1';
@@ -72,16 +72,37 @@ export async function createBooking(reqBody: any) {
 
     const data = await response.json();
     if (!response.ok) {
-        // throw new Error(data.message || 'Failed to create booking');
-        const free_slots = await getAvailableSlots(user.username, reqBody.start.split('T')[0]);
-        if (free_slots.length==0){
+        const free_slots = await getSlots(reqBody.start, eventTypeId, reqBody.end, reqBody.timeZone);
+    
+        const allSlots = Object.values(free_slots).flatMap((dateSlots:any) => {
+            // each 'dateSlots' is an object where keys are dates and values are arrays of slots
+            return Object.values(dateSlots).flat();
+        });
+
+        // const allSlots:any = Object.values(free_slots).reduce((acc:any, dateSlots:any) => {
+        //     Object.values(dateSlots).forEach((slots:any) => {
+        //         slots.forEach((slot:any) => acc.push(slot.time)); // Directly pushing the 'time' property to accumulator
+        //     });
+        //     return acc;
+        // }, []);
+        
+        // const formattedSlots = allSlots.join(', ');
+        
+        // console.log("All slots after proper extraction:", allSlots);
+    
+        if (!allSlots.length) {
             return { success: false, status: 503, message: 'No slots available, either it is not a working day or all slots are booked' };
         }
-        else {
-            const formattedSlots = free_slots.map(slot => `${slot.start} to ${slot.end}`).join(', ');
-            return { success: false, status: 503, message: `Slot not available, please choose one of the following slots: ${formattedSlots}` };
+    
+        const formattedSlots = allSlots.map((slot:any) => slot.time).join(', ');
+    
+        if (!formattedSlots.length) {
+            return { success: false, status: 503, message: 'No slots available or unable to parse slots data' };
         }
-
+    
+        return { success: false, status: 503, message: `Slot not available, please choose one of the following slots: ${formattedSlots}` };
     }
+    
+    
     return data;
 }

@@ -1,7 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createBooking } from '../../utilities/bookingUtils';
-import { getAvailableSlots } from '../../utilities/availabilityUtils';
-import { getUserDetails } from '../../utilities/userUtils';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {
