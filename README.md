@@ -28,6 +28,13 @@
 - <b>Endpoint</b>: /api/findEventTypeId
 - <b>Method</b>: GET
 
+### Find Available Slots
+
+- <b>Endpoint</b>: /api/slots
+- <b>Method</b>: GET
+- <b>Query Params</b>: startTime, endTime (optional), eventTypeId (optional), eventTypeSlug (optional)
+- <b>Note</b>: At least one among eventTypeId and eventTypeSlug is required
+
 ### Find Free Schedule between 2 dates
 
 - <b>Endpoint</b>: /api/getAvailableSlotRange

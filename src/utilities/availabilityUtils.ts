@@ -72,7 +72,7 @@ export async function getAvailableSlots(username: string, startDate: string, end
 }
 
 
-export async function getSlots( startTime:string,eventTypeId?:number, endTime?:string, timeZone?:string,eventTypeSlug?:string) {
+export async function getSlots( startTime:string,eventTypeId?:number, endTime?:string, eventTypeSlug?:string) {
     if (!startTime) {
         return {success: false, status:400, message: 'startTime is required'};
     }
@@ -80,6 +80,7 @@ export async function getSlots( startTime:string,eventTypeId?:number, endTime?:s
     startTime = moment(startTime, 'YYYY-MM-DDTHH:mm:ss').subtract(5, 'hours').subtract(30, 'minutes').format('YYYY-MM-DDTHH:mm:ss') + 'Z';
 
     // console.log('start '+startTime);
+    const timeZone="Asia/Kolkata";
 
     if (!eventTypeId && eventTypeSlug) {
         eventTypeId = await findEventTypeId(eventTypeSlug as string);

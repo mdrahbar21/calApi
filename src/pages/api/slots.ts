@@ -10,7 +10,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let eventTypeId = Number(req.query.eventTypeId);
 
     try {
-        const freeSlots = await getSlots(startTime as string, eventTypeId as number, endTime as string, timeZone as string,eventTypeSlug as string,);
+        const freeSlots = await getSlots(startTime as string, eventTypeId as number, endTime as string, eventTypeSlug as string,);
         res.status(200).json({ freeSlots });
     } catch (error: any) {
         console.error('Error fetching availability:', error.message);
